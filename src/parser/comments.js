@@ -66,7 +66,11 @@ export default class CommentsParser extends BaseParser {
       }
     } else {
       const lastInStack = last(stack);
-      if (stack.length > 0 && lastInStack.trailingComments && lastInStack.trailingComments[0].start >= node.end) {
+      if (
+        stack.length > 0 &&
+        lastInStack.trailingComments &&
+        lastInStack.trailingComments[0].start >= node.end
+      ) {
         trailingComments = lastInStack.trailingComments;
         lastInStack.trailingComments = null;
       }
@@ -86,15 +90,20 @@ export default class CommentsParser extends BaseParser {
     // Attach comments that follow a trailing comma on the last
     // property in an object literal or a trailing comma in function arguments
     // as trailing comments
-    if (firstChild &&
-          (firstChild.type === "ObjectProperty" ||
-          (node.type === "CallExpression")) &&
-          this.state.leadingComments.length > 0) {
+    if (
+      firstChild &&
+      (firstChild.type === "ObjectProperty" ||
+        node.type === "CallExpression") &&
+      this.state.leadingComments.length > 0
+    ) {
       const lastComment = last(this.state.leadingComments);
       if (lastComment.start >= node.start) {
         if (this.state.commentPreviousNode) {
           for (j = 0; j < this.state.leadingComments.length; j++) {
-            if (this.state.leadingComments[j].end < this.state.commentPreviousNode.end) {
+            if (
+              this.state.leadingComments[j].end <
+              this.state.commentPreviousNode.end
+            ) {
               this.state.leadingComments.splice(j, 1);
               j--;
             }
@@ -110,7 +119,10 @@ export default class CommentsParser extends BaseParser {
 
     if (lastChild) {
       if (lastChild.leadingComments) {
-        if (lastChild !== node && last(lastChild.leadingComments).end <= node.start) {
+        if (
+          lastChild !== node &&
+          last(lastChild.leadingComments).end <= node.start
+        ) {
           node.leadingComments = lastChild.leadingComments;
           lastChild.leadingComments = null;
         } else {
@@ -129,7 +141,10 @@ export default class CommentsParser extends BaseParser {
       if (last(this.state.leadingComments).end <= node.start) {
         if (this.state.commentPreviousNode) {
           for (j = 0; j < this.state.leadingComments.length; j++) {
-            if (this.state.leadingComments[j].end < this.state.commentPreviousNode.end) {
+            if (
+              this.state.leadingComments[j].end <
+              this.state.commentPreviousNode.end
+            ) {
               this.state.leadingComments.splice(j, 1);
               j--;
             }
@@ -162,7 +177,9 @@ export default class CommentsParser extends BaseParser {
         // result in an empty array, and if so, the array must be
         // deleted.
         const leadingComments = this.state.leadingComments.slice(0, i);
-        node.leadingComments = leadingComments.length === 0 ? null : leadingComments;
+        node.leadingComments = leadingComments.length === 0
+          ? null
+          : leadingComments;
 
         // Similarly, trailing comments are attached later. The variable
         // must be reset to null if there are no trailing comments.
@@ -176,7 +193,11 @@ export default class CommentsParser extends BaseParser {
     this.state.commentPreviousNode = node;
 
     if (trailingComments) {
-      if (trailingComments.length && trailingComments[0].start >= node.start && last(trailingComments).end <= node.end) {
+      if (
+        trailingComments.length &&
+        trailingComments[0].start >= node.start &&
+        last(trailingComments).end <= node.end
+      ) {
         node.innerComments = trailingComments;
       } else {
         node.trailingComments = trailingComments;

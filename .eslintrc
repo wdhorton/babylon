@@ -2,5 +2,9 @@
   "extends": "babel",
   "env": {
     "node": true
+  },
+  "rules":{
+    "arrow-parens": ["error", "as-needed"],
+    "quotes": ["error", "double", { "avoidEscape": true }]
   }
 }

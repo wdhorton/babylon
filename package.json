@@ -35,7 +35,10 @@
     "eslint-config-babel": "^6.0.0",
     "eslint-plugin-flowtype": "^2.20.0",
     "flow-bin": "^0.47.0",
+    "husky": "^0.13.4",
+    "lint-staged": "^3.6.0",
     "nyc": "^11.0.2",
+    "prettier": "^1.4.4",
     "rimraf": "^2.5.4",
     "rollup": "^0.42.0",
     "rollup-plugin-babel": "^2.6.1",
@@ -51,7 +54,9 @@
     "changelog": "git log `git describe --tags --abbrev=0`..HEAD --pretty=format:' * %s (%an)' | grep -v 'Merge pull request'",
     "clean": "rimraf lib",
     "flow": "flow",
+    "format": "prettier --write --trailing-comma all \"src/**/*.js\" \"bin/*.js\" \"test/*.js\" \"test/helpers/*.js\"",
     "lint": "eslint src bin",
+    "precommit": "lint-staged",
     "prepublish": "cross-env BABEL_ENV=production yarn run build",
     "preversion": "yarn run test && npm run changelog",
     "test": "yarn run lint && yarn run flow && yarn run build -- -m && yarn run test-only",
@@ -74,6 +79,28 @@
     "source": [
       "src/**/*.js",
       "bin/**/*.js"
+    ]
+  },
+  "lint-staged": {
+    "bin/*.js": [
+      "prettier --trailing-comma all --write",
+      "git add"
+    ],
+    "src/**/*.js": [
+      "prettier --trailing-comma all --write",
+      "git add"
+    ],
+    "test/*.js": [
+      "prettier --trailing-comma all --write",
+      "git add"
+    ],
+    "test/helpers/*.js": [
+      "prettier --trailing-comma all --write",
+      "git add"
+    ],
+    "package.json": [
+      "node ./scripts/yarn-install.js",
+      "git add yarn.lock"
     ]
   },
   "changelog": {

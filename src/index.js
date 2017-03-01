@@ -35,30 +35,35 @@ export function parseExpression(input: string, options?: Options): Expression {
   return parser.getExpression();
 }
 
-
 export { tokTypes };
 
 function getParser(options: ?Options, input: string): Parser {
-  const cls = options && options.plugins ? getParserClass(options.plugins) : Parser;
+  const cls = options && options.plugins
+    ? getParserClass(options.plugins)
+    : Parser;
   return new cls(options, input);
 }
 
 const parserClassCache: { [key: string]: Class<Parser> } = {};
 
 /** Get a Parser class with plugins applied. */
-function getParserClass(pluginsFromOptions: $ReadOnlyArray<string>): Class<Parser> {
+function getParserClass(
+  pluginsFromOptions: $ReadOnlyArray<string>,
+): Class<Parser> {
   // Filter out just the plugins that have an actual mixin associated with them.
-  let pluginList = pluginsFromOptions.filter((p) => p === "estree" || p === "flow" || p === "jsx");
+  let pluginList = pluginsFromOptions.filter(
+    p => p === "estree" || p === "flow" || p === "jsx",
+  );
 
   if (pluginList.indexOf("flow") >= 0) {
     // ensure flow plugin loads last
-    pluginList = pluginList.filter((plugin) => plugin !== "flow");
+    pluginList = pluginList.filter(plugin => plugin !== "flow");
     pluginList.push("flow");
   }
 
   if (pluginList.indexOf("estree") >= 0) {
     // ensure estree plugin loads first
-    pluginList = pluginList.filter((plugin) => plugin !== "estree");
+    pluginList = pluginList.filter(plugin => plugin !== "estree");
     pluginList.unshift("estree");
   }
 
