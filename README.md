@@ -142,6 +142,7 @@ require("babylon").parse("code", {
  - `numericSeparator` ([proposal](https://github.com/samuelgoto/proposal-numeric-separator))
  - `optionalChaining` ([proposal](https://github.com/tc39/proposal-optional-chaining))
  - `importMeta` ([proposal](https://github.com/tc39/proposal-import-meta))
+ - `bigint` ([proposal](https://github.com/tc39/proposal-bigint))
 
 ### FAQ
 

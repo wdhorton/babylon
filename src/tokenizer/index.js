@@ -644,6 +644,7 @@ export default class Tokenizer extends LocationParser {
     const start = this.state.pos;
     let octal = this.input.charCodeAt(start) === 48; // '0'
     let isFloat = false;
+    let isBigInt = false;
 
     if (!startsWithDot && this.readInt(10) === null) this.raise(start, "Invalid number");
     if (octal && this.state.pos == start + 1) octal = false; // number === 0
@@ -663,9 +664,17 @@ export default class Tokenizer extends LocationParser {
       isFloat = true;
     }
 
+    if (this.hasPlugin("bigint")) {
+      if (next === 110) { // 'n'
+        if (isFloat) this.raise(start, "Invalid BigIntLiteral");
+        ++this.state.pos;
+        isBigInt = true;
+      }
+    }
+
     if (isIdentifierStart(this.fullCharCodeAtPos())) this.raise(this.state.pos, "Identifier directly after number");
 
-    const str = this.input.slice(start, this.state.pos).replace(/_/g, "");
+    const str = this.input.slice(start, this.state.pos).replace(/[_n]/g, "");
     let val;
     if (isFloat) {
       val = parseFloat(str);
@@ -678,7 +687,7 @@ export default class Tokenizer extends LocationParser {
     } else {
       val = parseInt(str, 8);
     }
-    return this.finishToken(tt.num, val);
+    return this.finishToken(isBigInt ? tt.bigint : tt.num, val);
   }
 
   // Read a string value, interpreting backslash-escapes.
