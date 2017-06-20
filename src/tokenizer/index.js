@@ -631,10 +631,27 @@ export default class Tokenizer extends LocationParser {
   }
 
   readRadixNumber(radix: number): void {
+    const start = this.state.pos;
+    let isBigInt = false;
+
     this.state.pos += 2; // 0x
     const val = this.readInt(radix);
     if (val == null) this.raise(this.state.start + 2, "Expected number in radix " + radix);
+
+    if (this.hasPlugin("bigInt")) {
+      if (this.input.charCodeAt(this.state.pos) === 110) { // 'n'
+        ++this.state.pos;
+        isBigInt = true;
+      }
+    }
+
     if (isIdentifierStart(this.fullCharCodeAtPos())) this.raise(this.state.pos, "Identifier directly after number");
+
+    if (isBigInt) {
+      const str = this.input.slice(start, this.state.pos).replace(/[_n]/g, "");
+      return this.finishToken(tt.bigint, str);
+    }
+
     return this.finishToken(tt.num, val);
   }
 
@@ -662,11 +679,13 @@ export default class Tokenizer extends LocationParser {
       if (next === 43 || next === 45) ++this.state.pos; // '+-'
       if (this.readInt(10) === null) this.raise(start, "Invalid number");
       isFloat = true;
+      next = this.input.charCodeAt(this.state.pos);
     }
 
     if (this.hasPlugin("bigInt")) {
       if (next === 110) { // 'n'
-        if (isFloat) this.raise(start, "Invalid BigIntLiteral");
+        // disallow floats and legacy octal syntax, new style octal ("0o") is handled in this.readRadixNumber
+        if (isFloat || octal) this.raise(start, "Invalid BigIntLiteral");
         ++this.state.pos;
         isBigInt = true;
       }
@@ -674,7 +693,13 @@ export default class Tokenizer extends LocationParser {
 
     if (isIdentifierStart(this.fullCharCodeAtPos())) this.raise(this.state.pos, "Identifier directly after number");
 
+    // remove "_" for numeric literal separator, and "n" for BigInts
     const str = this.input.slice(start, this.state.pos).replace(/[_n]/g, "");
+
+    if (isBigInt) {
+      return this.finishToken(tt.bigint, str);
+    }
+
     let val;
     if (isFloat) {
       val = parseFloat(str);
@@ -687,7 +712,7 @@ export default class Tokenizer extends LocationParser {
     } else {
       val = parseInt(str, 8);
     }
-    return this.finishToken(isBigInt ? tt.bigint : tt.num, val);
+    return this.finishToken(tt.num, val);
   }
 
   // Read a string value, interpreting backslash-escapes.
