@@ -664,7 +664,7 @@ export default class Tokenizer extends LocationParser {
       isFloat = true;
     }
 
-    if (this.hasPlugin("bigint")) {
+    if (this.hasPlugin("bigInt")) {
       if (next === 110) { // 'n'
         if (isFloat) this.raise(start, "Invalid BigIntLiteral");
         ++this.state.pos;
