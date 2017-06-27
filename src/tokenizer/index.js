@@ -639,7 +639,7 @@ export default class Tokenizer extends LocationParser {
     if (val == null) this.raise(this.state.start + 2, "Expected number in radix " + radix);
 
     if (this.hasPlugin("bigInt")) {
-      if (this.input.charCodeAt(this.state.pos) === 110) { // 'n'
+      if (this.input.charCodeAt(this.state.pos) === 0x6E) { // 'n'
         ++this.state.pos;
         isBigInt = true;
       }
@@ -659,7 +659,7 @@ export default class Tokenizer extends LocationParser {
 
   readNumber(startsWithDot: boolean): void {
     const start = this.state.pos;
-    let octal = this.input.charCodeAt(start) === 48; // '0'
+    let octal = this.input.charCodeAt(start) === 0x30; // '0'
     let isFloat = false;
     let isBigInt = false;
 
@@ -667,23 +667,23 @@ export default class Tokenizer extends LocationParser {
     if (octal && this.state.pos == start + 1) octal = false; // number === 0
 
     let next = this.input.charCodeAt(this.state.pos);
-    if (next === 46 && !octal) { // '.'
+    if (next === 0x2E && !octal) { // '.'
       ++this.state.pos;
       this.readInt(10);
       isFloat = true;
       next = this.input.charCodeAt(this.state.pos);
     }
 
-    if ((next === 69 || next === 101) && !octal) { // 'eE'
+    if ((next === 0x45 || next === 0x65) && !octal) { // 'Ee'
       next = this.input.charCodeAt(++this.state.pos);
-      if (next === 43 || next === 45) ++this.state.pos; // '+-'
+      if (next === 0x2B || next === 0x2D) ++this.state.pos; // '+-'
       if (this.readInt(10) === null) this.raise(start, "Invalid number");
       isFloat = true;
       next = this.input.charCodeAt(this.state.pos);
     }
 
     if (this.hasPlugin("bigInt")) {
-      if (next === 110) { // 'n'
+      if (next === 0x6E) { // 'n'
         // disallow floats and legacy octal syntax, new style octal ("0o") is handled in this.readRadixNumber
         if (isFloat || octal) this.raise(start, "Invalid BigIntLiteral");
         ++this.state.pos;
